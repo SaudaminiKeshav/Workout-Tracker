@@ -1,3 +1,6 @@
+const router = require("express").Router();
+const Transaction = require("../models/transaction.js");
+
 const API = {
   async getLastWorkout() {
     let res;
@@ -42,3 +45,4 @@ const API = {
     return json;
   },
 };
+
