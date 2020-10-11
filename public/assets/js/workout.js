@@ -1,22 +1,14 @@
-
 async function initWorkout() {
   const lastWorkout = await API.getLastWorkout();
-  console.log("Last workout (workout.js):", lastWorkout);
-  
+  console.log("Last workout:", lastWorkout);
   if (lastWorkout) {
     document
       .querySelector("a[href='/exercise?']")
       .setAttribute("href", `/exercise?id=${lastWorkout._id}`);
 
-    let calcDuration = 0;
-    lastWorkout.exercises.forEach(exercise => {
-      calcDuration += exercise.duration;
-      console.log(calcDuration);
-    });
-    
     const workoutSummary = {
       date: formatDate(lastWorkout.day),
-      totalDuration: calcDuration,
+      totalDuration: lastWorkout.totalDuration,
       numExercises: lastWorkout.exercises.length,
       ...tallyExercises(lastWorkout.exercises)
     };
@@ -25,7 +17,7 @@ async function initWorkout() {
   } else {
     renderNoWorkoutText()
   }
-};
+}
 
 function tallyExercises(exercises) {
   const tallied = exercises.reduce((acc, curr) => {
@@ -42,7 +34,14 @@ function tallyExercises(exercises) {
 }
 
 function formatDate(date) {
-  return moment(date).format('lll');
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  };
+
+  return new Date(date).toLocaleDateString(options);
 }
 
 function renderWorkoutSummary(summary) {
