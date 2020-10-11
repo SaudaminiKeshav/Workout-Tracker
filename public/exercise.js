@@ -35,8 +35,11 @@ initExercise();
 function handleWorkoutTypeChange(event) {
   workoutType = event.target.value;
 
+  console.log(workoutType);
+
   if (workoutType === "cardio") {
     cardioForm.classList.remove("d-none");
+    cardioForm.classList.setAttribute("style","display:block")
     resistanceForm.classList.add("d-none");
   } else if (workoutType === "resistance") {
     resistanceForm.classList.remove("d-none");
@@ -138,7 +141,8 @@ function clearInputs() {
 }
 
 if (workoutTypeSelect) {
-  workoutTypeSelect.addEventListener("change", handleWorkoutTypeChange);
+  workoutTypeSelect.addEventListener("change", 
+  handleWorkoutTypeChange);
 }
 if (completeButton) {
   completeButton.addEventListener("click", function (event) {
