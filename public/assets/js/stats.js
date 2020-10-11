@@ -8,10 +8,8 @@ fetch("/api/workouts")
     populateChart(data);
   });
 
-  API.getWorkoutsInRange()
-
-  function generatePalette() {
-    const arr = [
+function generatePalette() {
+  const arr = [
     "#003f5c",
     "#2f4b7c",
     "#665191",
@@ -31,11 +29,14 @@ fetch("/api/workouts")
   ]
 
   return arr;
-  }
+}
 function populateChart(data) {
-  let durations = duration(data);
-  let pounds = calculateTotalWeight(data);
-  let workouts = workoutNames(data);
+  let workoutDurations = calcWorkoutDuration(data);
+  let workoutPounds = calcWorkoutPounds(data);
+  let cardioWorkouts = getCardioWorkouts(data);
+  let cardioDurations = calcCardioDuration(data);
+  let resistanceWorkouts = getResistanceWorkouts(data);
+  let resistancePounds = calcResistancePounds(data);
   const colors = generatePalette();
 
   let line = document.querySelector("#canvas").getContext("2d");
@@ -60,7 +61,7 @@ function populateChart(data) {
           label: "Workout Duration In Minutes",
           backgroundColor: "red",
           borderColor: "red",
-          data: durations,
+          data: workoutDurations,
           fill: false
         }
       ]
@@ -106,7 +107,7 @@ function populateChart(data) {
       datasets: [
         {
           label: "Pounds",
-          data: pounds,
+          data: workoutPounds,
           backgroundColor: [
             "rgba(255, 99, 132, 0.2)",
             "rgba(54, 162, 235, 0.2)",
@@ -144,79 +145,148 @@ function populateChart(data) {
     }
   });
 
+
   let pieChart = new Chart(pie, {
     type: "pie",
     data: {
-      labels: workouts,
+      labels: cardioWorkouts,
       datasets: [
         {
-          label: "Excercises Performed",
+          label: "Minutes",
           backgroundColor: colors,
-          data: durations
+          data: cardioDurations
         }
       ]
     },
     options: {
       title: {
         display: true,
-        text: "Excercises Performed"
-      }
+        text: "Total Minutes per Cardio Exercise"
+      },
+      maintainAspectRatio: false
     }
   });
 
   let donutChart = new Chart(pie2, {
     type: "doughnut",
     data: {
-      labels: workouts,
+      labels: resistanceWorkouts,
       datasets: [
         {
-          label: "Excercises Performed",
-          backgroundColor: colors,
-          data: pounds
+          label: "Pounds",
+          backgroundColor: colors.reverse(),
+          data: resistancePounds
         }
       ]
     },
     options: {
       title: {
         display: true,
-        text: "Excercises Performed"
-      }
+        text: "Total Pounds per Resistance Exercise"
+      },
+      maintainAspectRatio: false
     }
   });
 }
 
-function duration(data) {
-  let durations = [];
+function calcWorkoutDates(data) {
+  let workoutDates = [];
 
   data.forEach(workout => {
+    let formattedDate = moment(workout.day).format('lll');
+    workoutDates.push(formattedDate);
+  });
+
+  return workoutDates;
+};
+
+function calcWorkoutDuration(workouts) {
+  let durations = [];
+
+  workouts.forEach(workout => {
+    let calcDuration = 0;
     workout.exercises.forEach(exercise => {
-      durations.push(exercise.duration);
+      calcDuration += exercise.duration;
     });
+    durations.push(calcDuration);
   });
 
   return durations;
 }
 
-function calculateTotalWeight(data) {
+function calcWorkoutPounds(data) {
   let total = [];
 
   data.forEach(workout => {
+    let workoutPounds = 0;
     workout.exercises.forEach(exercise => {
-      total.push(exercise.weight);
+      if (exercise.type === "resistance") {
+        workoutPounds += exercise.weight;
+
+      } else if (exercise.type === "cardio") {
+        workoutPounds += 0;
+      }
     });
+
+    total.push(workoutPounds);
   });
 
   return total;
 }
 
-function workoutNames(data) {
+function getCardioWorkouts(data) {
   let workouts = [];
 
   data.forEach(workout => {
     workout.exercises.forEach(exercise => {
-      workouts.push(exercise.name);
+      if (exercise.type === "cardio") {
+        workouts.push(exercise.name);
+      }
     });
   });
-  
+
   return workouts;
+};
+
+function calcCardioDuration(workouts) {
+  let durations = [];
+
+  workouts.forEach(workout => {
+    let calcDuration = 0;
+    workout.exercises.forEach(exercise => {
+      if (exercise.type === "cardio") {
+        calcDuration += exercise.duration;
+      }
+    });
+    durations.push(calcDuration);
+  });
+
+  return durations;
+}
+
+function getResistanceWorkouts(data) {
+  let workouts = [];
+
+  data.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      if (exercise.type === "resistance") {
+        workouts.push(exercise.name);
+      }
+    });
+  });
+
+  return workouts;
+}
+
+function calcResistancePounds(workouts) {
+  let pounds = [];
+  workouts.forEach(workout => {
+    workout.exercises.forEach(exercise => {
+      if (exercise.type === "resistance") {
+        pounds.push(exercise.weight);
+      }
+    });
+  });
+
+  return pounds;
 }
