@@ -4,19 +4,31 @@ mongoose.set('useFindAndModify', false);
 
 module.exports = (app) => {
 
+    /** Get All Workouts **/
     app.get("/api/workouts", (req, res) => {
         db.Workout.find()
-            .then(dbWorkout => {
-                console.log("All dbWorkouts: ", dbWorkout);
-                res.json(dbWorkout);
+            .then(dbWorkouts => {
+                res.json(dbWorkouts);
             })
             .catch(err => {
-                console.log("Error GET /api/workouts: ", err);
                 res.json(err);
             });
+    });
+
+    app.post('/api/workouts', ({ body }, res) => {
+        console.log("Incoming request /api/workouts: ", body);
+        db.Workout.create(body)
+            .then(dbWorkout => {
+                console.log("New workout created: ", dbWorkout);
+                res.json(dbWorkout);
+            })
+            .catch(({ message }) => {
+                console.log("Error POST /api/workouts", message);
+            });
+    });
 
     app.put('/api/workouts/:id', (req, res) => {
-        console.log("Incoming request /api/workouts/:id: ", req.body);
+
         db.Workout.findByIdAndUpdate(
             { _id: req.params.id },
             { $push: { exercises: req.body } },
@@ -28,23 +40,7 @@ module.exports = (app) => {
                     console.log("Updated dbWorkout: ", result);
                     res.send(result);
                 }
-            });
+            }
+        );
     });
-
-    app.post('/api/workouts', ({ body }, res) => {
-        db.Workout.create(body)
-            .then(dbWorkout => {
-                console.log("New workout created: ", dbWorkout);
-
-                res.json(dbWorkout);
-            })
-            .catch(({ message }) => {
-                console.log("Error POST /api/workouts", message);
-            });
-    });
-
-    app.get('/api/workouts/range', (req, res) => {
-
-    });
-});
-}; 
+};
