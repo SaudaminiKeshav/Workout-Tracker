@@ -6,10 +6,10 @@ const API = {
     try {
       res = await fetch("/api/workouts");
     } catch (err) {
-      console.log(err)
+      console.log("getLastWorkout error: ", err)
     }
     const json = await res.json();
-
+    console.log("getLastWorkout json: ", json);
     return json[json.length - 1];
   },
   async addExercise(data) {
@@ -22,6 +22,7 @@ const API = {
     });
 
     const json = await res.json();
+    console.log("addExercise: ", res);
 
     return json;
   },
@@ -33,14 +34,14 @@ const API = {
     });
 
     const json = await res.json();
-
+    console.log("Response from createWorkout POST: ", res);
     return json;
   },
 
   async getWorkoutsInRange() {
     const res = await fetch(`/api/workouts/range`);
     const json = await res.json();
-
+    console.log("getWorksoutsInRange: ", res);
     return json;
   },
 };
