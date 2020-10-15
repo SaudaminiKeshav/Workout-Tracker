@@ -16,7 +16,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/workout', {
 
 require('./routes/api-routes')(app);
 require('./routes/html-routes')(app);
-require('dotenv').config();
 
 app.listen(PORT, () => {
     console.log(`App running on port ${PORT}`);
